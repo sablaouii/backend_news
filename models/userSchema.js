@@ -29,7 +29,11 @@ const userSchema = new mongoose.Schema(
     },
     user_image: { type: String, require: false, default: "client.png" },
     age: {type : Number },
-    count: {type : Number, default:'0'}
+    count: {type : Number, default:'0'},
+    formations : [{type : mongoose.Schema.Types.ObjectId,ref: 'Formation '}] ,//one to many men stagaire l formation
+    articles : [{type : mongoose.Schema.Types.ObjectId,ref: 'Article'}] ,//one to many men admin l articles
+   // formation : {type : mongoose.Schema.Types.ObjectId,ref: 'formation'} ,//one to one// kima formation o quiz
+
   },
   { timestamps: true }
 );
@@ -52,5 +56,5 @@ userSchema.post("save", async function (req, res, next) {
   next();
 });
 
-const user = mongoose.model("user", userSchema);
-module.exports = user;
+const User = mongoose.model("User", userSchema);
+module.exports = User;
