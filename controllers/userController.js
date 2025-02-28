@@ -1,9 +1,13 @@
 const userModel = require('../models/userSchema');
+const formationModel = require('../models/formationSchema');
 //add user
 module.exports.addUserEmployeur = async (req,res) => {
     try {
         const {username , email , password , age} = req.body;
         const roleEmployeur ='employeur'
+        if (!checkIfUserExists) {
+                throw new Error("User not found");
+               }
         const user = await userModel.create({
             username,email,password,role:roleEmployeur,age
         })
@@ -11,7 +15,9 @@ module.exports.addUserEmployeur = async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
+};
+
+
 module.exports.addUserEmployeurWithImg = async (req,res) => {
     try {
         const {username , email , password } = req.body;
@@ -25,7 +31,7 @@ module.exports.addUserEmployeurWithImg = async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
+};
 
 // ajout d'admin
 module.exports.addUserAdmin= async (req,res) => {
@@ -39,7 +45,7 @@ module.exports.addUserAdmin= async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
+};
 // donner tous les users 
 module.exports.getAllUsers= async (req,res) => {
     try {
@@ -48,7 +54,7 @@ module.exports.getAllUsers= async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
+};
 //recherche by id 
 module.exports.getUserById= async (req,res) => {
     try {
@@ -60,16 +66,21 @@ module.exports.getUserById= async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
-//supprimer by id 
+};
+// l'utulisateur aando barsha formationnet bch yemchy yifasakh wahda mou3ayna mech l kol 
+
 module.exports.deleteUserById= async (req,res) => {
     try {
         const {id} = req.params
-//si l'utulisateur existe ou nn
-        const user = await userModel.findById(id);
-        if (!user) {
+
+        const checkIfUserExists = await userModel.findById(id);
+        if (!checkIfUserExists) {
           throw new Error("User not found");
         }
+
+        await formationModel.updateMany({owners : id},{
+            $unset: { owners: 1 },// null "" 
+          });
 
         await userModel.findByIdAndDelete(id)
 
@@ -77,7 +88,21 @@ module.exports.deleteUserById= async (req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // modifier 
 module.exports.updateUserById = async (req, res) => {
     try {
@@ -91,7 +116,7 @@ module.exports.updateUserById = async (req, res) => {
     } catch (error) {
         res.status(500).json({message: error.message});
     }
-    }
+    };
     module.exports.searchUserByUsername = async (req, res) => {
         try {
     
@@ -112,7 +137,7 @@ module.exports.updateUserById = async (req, res) => {
         } catch (error) {
             res.status(500).json({message: error.message});
         }
-        }
+        };
         //trii
         module.exports.getAllUsersSortByAge= async (req,res) => {
             try {
@@ -124,7 +149,7 @@ module.exports.updateUserById = async (req, res) => {
             } catch (error) {
                 res.status(500).json({message: error.message});
             }
-        }
+        };
         module.exports.getAllUsersAgeBetMaxAgeMinAge= async (req,res) => {
             try {
                 const MaxAge = req.query.MaxAge
@@ -135,7 +160,7 @@ module.exports.updateUserById = async (req, res) => {
             } catch (error) {
                 res.status(500).json({message: error.message});
             }
-        }
+        };
         module.exports.getAllEmployeur= async (req,res) => {
             try {
                 const userListe = await userModel.find({role : "employeur"})
@@ -144,7 +169,7 @@ module.exports.updateUserById = async (req, res) => {
             } catch (error) {
                 res.status(500).json({message: error.message});
             }
-        }
+        };
         module.exports.getAllAdmin= async (req,res) => {
             try {
                 const userListe = await userModel.find({role : "admin"})
@@ -152,5 +177,5 @@ module.exports.updateUserById = async (req, res) => {
             } catch (error) {
                 res.status(500).json({message: error.message});
             }
-        }
+        };
         

@@ -17,6 +17,7 @@ router.get('/getAllAdmin',userController.getAllAdmin);
 router.get('/getAllUsersAgeBetMaxAgeMinAge',userController.getAllUsersAgeBetMaxAgeMinAge); 
 //ajouter donc =post
 router.post('/addUserEmployeurWithImg/:id',upload.single("image_user"),userController.addUserEmployeurWithImg); 
+router.delete('/deleteUserById/:id',userController.deleteUserById); 
  
 
 
