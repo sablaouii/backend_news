@@ -3,8 +3,17 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const session =require ("express-session");
 const { connectToMongoDb } = require("./config/db");
 
+const cors = require("cors");
+require("dotenv").config();
+
+const logMiddleware = require('./midlewares/logsMiddlewares.js'); //log
+
+
+
+const http = require("http");//1 importation du protocole http
 
 // gemini
 const fetch = require('node-fetch');
@@ -13,10 +22,8 @@ global.Headers = fetch.Headers;
 global.Request = fetch.Request;
 global.Response = fetch.Response;
 
-require("dotenv").config();
 
 
-const http = require("http"); //1 importation du protocole http
 
 var indexRouter = require("./routes/indexRouter");
 var usersRouter = require("./routes/usersRouter");
@@ -25,11 +32,32 @@ var formationRouter = require("./routes/formationRouter");
 var GeminiRouter = require("./routes/GeminiRouter");
 var app = express();
 
+
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(logMiddleware); //log
+
+app.use(cors({
+  origin:"http://localhost:3000",//origin front
+  methods:"GET,POST,PUT,Delete",
+}));
+
+app.use(session({   //cobfig session
+  secret: "net secret pfe",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: {secure: false},
+    maxAge: 24*60*60,
+  
+  },  
+}))
+
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
