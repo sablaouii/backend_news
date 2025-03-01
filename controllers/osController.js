@@ -3,6 +3,7 @@ const os = require('os');
 module.exports.esmfonction = async (req,res) => {
     try {
         //..
+        const user = req.session.user;// bch yaaref chkoun l user eli authentifier
         res.status(200).json({});
     } catch (error) {
         res.status(500).json({message: error.message});

@@ -1,5 +1,12 @@
 const userModel = require('../models/userSchema');
 const formationModel = require('../models/formationSchema');
+const jwt = require ('jsonwebtoken');
+const maxTime = 24 *60 * 60 //24H
+//const maxTime = 1 *60 // 1min
+
+const createToken = (id) => {
+    return jwt.sign({id},'net secret pfe', {expiresIn: maxTime})
+}
 //add user
 module.exports.addUserEmployeur = async (req,res) => {
     try {
@@ -46,6 +53,8 @@ module.exports.addUserAdmin= async (req,res) => {
         res.status(500).json({message: error.message});
     }
 };
+
+
 // donner tous les users 
 module.exports.getAllUsers= async (req,res) => {
     try {
@@ -55,6 +64,8 @@ module.exports.getAllUsers= async (req,res) => {
         res.status(500).json({message: error.message});
     }
 };
+
+
 //recherche by id 
 module.exports.getUserById= async (req,res) => {
     try {
@@ -92,17 +103,6 @@ module.exports.deleteUserById= async (req,res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // modifier 
 module.exports.updateUserById = async (req, res) => {
     try {
@@ -117,6 +117,8 @@ module.exports.updateUserById = async (req, res) => {
         res.status(500).json({message: error.message});
     }
     };
+
+
     module.exports.searchUserByUsername = async (req, res) => {
         try {
     
@@ -138,6 +140,8 @@ module.exports.updateUserById = async (req, res) => {
             res.status(500).json({message: error.message});
         }
         };
+
+
         //trii
         module.exports.getAllUsersSortByAge= async (req,res) => {
             try {
@@ -150,6 +154,8 @@ module.exports.updateUserById = async (req, res) => {
                 res.status(500).json({message: error.message});
             }
         };
+
+
         module.exports.getAllUsersAgeBetMaxAgeMinAge= async (req,res) => {
             try {
                 const MaxAge = req.query.MaxAge
@@ -161,6 +167,8 @@ module.exports.updateUserById = async (req, res) => {
                 res.status(500).json({message: error.message});
             }
         };
+
+
         module.exports.getAllEmployeur= async (req,res) => {
             try {
                 const userListe = await userModel.find({role : "employeur"})
@@ -170,6 +178,8 @@ module.exports.updateUserById = async (req, res) => {
                 res.status(500).json({message: error.message});
             }
         };
+
+
         module.exports.getAllAdmin= async (req,res) => {
             try {
                 const userListe = await userModel.find({role : "admin"})
@@ -179,3 +189,25 @@ module.exports.updateUserById = async (req, res) => {
             }
         };
         
+
+        module.exports.login= async (req,res) => {
+            try {
+                const { email , password } = req.body;
+                const user = await userModel.login(email, password)
+                const token = createToken(user._id)
+                res.cookie("jwt_token_9antra", token, {httpOnly:false,maxAge:maxTime * 1000})
+                res.status(200).json({user})
+            } catch (error) {
+                res.status(500).json({message: error.message});
+            }
+        };
+        // l token bch yetfasakh 
+        module.exports.logout= async (req,res) => {
+            try {
+          
+                res.cookie("jwt_token_9antra", "", {httpOnly:false,maxAge:1})// 1 meli second
+                res.status(200).json("logged")
+            } catch (error) {
+                res.status(500).json({message: error.message});
+            }
+        }
