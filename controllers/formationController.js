@@ -8,7 +8,6 @@ const formationModel = require('../models/formationSchema');
       if (!formationList || formationList.length === 0) {
         throw new Error("Aucun formation trouvé");
       }
-  
       res.status(200).json(formationList);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -43,7 +42,10 @@ const formationModel = require('../models/formationSchema');
         throw new Error("formation introuvable");
        }
   
-        
+       await chapitreModel.updateMany({owners : id},{
+        $unset: { owners: 1 },// null "" 
+      });
+
        await formationModel.updateMany({}, {
            $pull: { formations: id },
          });

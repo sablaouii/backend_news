@@ -28,7 +28,19 @@ global.Response = fetch.Response;
 var indexRouter = require("./routes/indexRouter");
 var usersRouter = require("./routes/usersRouter");
 var osRouter = require("./routes/osRouter");
+
 var formationRouter = require("./routes/formationRouter");
+var alerteRouter = require ("./routes/alerteRouter");
+var articleRouter = require ("./routes/articleRouter");
+var chapitreRouter = require ("./routes/chapitreRouter");
+var inscritRouter = require ("./routes/inscritRouter");
+var notifRouter = require ("./routes/notifRouter");
+var pdfRouter = require ("./routes/pdfRouter");
+var questionRouter = require ("./routes/questionRouter");
+var quizRouter = require ("./routes/quizRouter");
+var certificatRouter = require ("./routes/certificatRouter");
+
+
 var GeminiRouter = require("./routes/GeminiRouter");
 var app = express();
 
@@ -62,7 +74,20 @@ app.use(session({   //cobfig session
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/os", osRouter);
+
+// les tables
 app.use("/formation", formationRouter);
+app.use("/alerte", alerteRouter);
+app.use("/article", articleRouter);
+app.use("/chapitre", chapitreRouter);
+app.use("/inscrit", inscritRouter);
+app.use("/notif", notifRouter);
+app.use("/pdf", pdfRouter);
+app.use("/question", questionRouter);
+app.use("/quiz", quizRouter);
+app.use("/certificat", certificatRouter);
+
+ //gemini 
 app.use("/gemini", GeminiRouter);
 
  // path hety ely kbal l os 

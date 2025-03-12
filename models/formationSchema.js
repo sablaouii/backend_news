@@ -6,7 +6,8 @@ const formationSchema = new mongoose.Schema(
     contenu:String,
     departement:String,
     //owner : {type : mongoose.Schema.Types.ObjectId,ref: 'User'} // many TO ONE 
-    owners : [{type : mongoose.Schema.Types.ObjectId,ref: 'User'}] // many TO many
+    owners : [{type : mongoose.Schema.Types.ObjectId,ref: 'User'}],// many TO many
+    chapitres: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chapitre' }] // Liste des chapitres
   },
   { timestamps: true }
 );

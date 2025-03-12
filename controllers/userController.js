@@ -1,5 +1,8 @@
 const userModel = require('../models/userSchema');
 const formationModel = require('../models/formationSchema');
+const alerteModel = require('../models/alerteSchema');
+const notifModel = require('../models/notifSchema');
+
 const jwt = require ('jsonwebtoken');
 const maxTime = 24 *60 * 60 //24H
 //const maxTime = 1 *60 // 1min
@@ -88,6 +91,20 @@ module.exports.deleteUserById= async (req,res) => {
         if (!checkIfUserExists) {
           throw new Error("User not found");
         }
+        await inscritModel.updateMany({user : id},{
+            $unset: { user: 1 },// null "" 
+          });
+
+         await notifModel.updateMany({user : id},{
+             $unset: { user: 1 },// null "" 
+           });
+        await articleModel.updateMany({owners : id},{
+            $unset: { owners: 1 },// null "" 
+          });
+
+        await alerteModel.updateMany({owners : id},{
+            $unset: { owners: 1 },// null "" 
+          });
 
         await formationModel.updateMany({owners : id},{
             $unset: { owners: 1 },// null "" 

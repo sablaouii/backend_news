@@ -33,8 +33,10 @@ const userSchema = new mongoose.Schema(
     formations : [{type : mongoose.Schema.Types.ObjectId,ref: 'Formation '}] ,//one to many men stagaire l formation
     articles : [{type : mongoose.Schema.Types.ObjectId,ref: 'Article'}] ,//one to many men admin l articles
    // formation : {type : mongoose.Schema.Types.ObjectId,ref: 'formation'} ,//one to one// kima formation o quiz
-   etat : Boolean,
-   ban : Boolean,
+    alertes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Alerte' }], // Relation avec les alertes
+    certificats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificat' }]
+  // etat : Boolean,
+   //ban : Boolean,
   },
   { timestamps: true }
 );
