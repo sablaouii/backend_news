@@ -3,9 +3,8 @@ const notifSchema = new mongoose.Schema(
   {
     titre:String,
     contenu:String,
-    createdAt: { type: Date, default: Date.now }
-    //owner : {type : mongoose.Schema.Types.ObjectId,ref: 'User'} // many TO ONE 
-    //owners : [{type : mongoose.Schema.Types.ObjectId,ref: 'User'}] // many TO many
+    createdAt: { type: Date, default: Date.now },
+    users: [{type: mongoose.Schema.Types.ObjectId,ref: 'Alerte'}]
   },
   { timestamps: true }
 );

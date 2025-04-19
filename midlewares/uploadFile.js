@@ -1,29 +1,34 @@
-//multer enreg une copie du photo
-const multer = require('multer');
-const path = require('path');
-// file system
-const fs = require('fs')
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'public/files')
-},
-filename: function (req, file, cb) {
-    const uploadPath = 'public/files';
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const uploadPath = "public/files";
+
+// Vérifie si le dossier existe, sinon le créer
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
     const originalName = file.originalname;
     const fileExtension = path.extname(originalName);
+    const baseName = path.basename(originalName, fileExtension);
     let fileName = originalName;
+    let index = 1;
 
-    //verification 
-    const  fileIndex = 1;
+    // Ajouter un suffixe si un fichier avec le même nom existe
     while (fs.existsSync(path.join(uploadPath, fileName))) {
-      const baseName = path.basename(originalName, fileExtension);
-      fileName = `${baseName}_${fileIndex}${fileExtension}`;
-      fileIndex++;
+      fileName = `${baseName}_${index}${fileExtension}`;
+      index++;
     }
+
     cb(null, fileName);
   }
-})
-//export
-var uploadfile = multer({ storage: storage });
+});
+
+const uploadfile = multer({ storage });
 module.exports = uploadfile;
-//nb : kolo copie coller dima ma yetbadel ken esm l files ctt 

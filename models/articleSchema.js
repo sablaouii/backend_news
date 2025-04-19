@@ -6,8 +6,6 @@ const articleSchema = new mongoose.Schema(
     date_pub:Date,
 
     owner : {type : mongoose.Schema.Types.ObjectId,ref: 'User'} // many to one 
-    //owners : [{type : mongoose.Schema.Types.ObjectId,ref: 'User'}] // many to one
-    
 },
   { timestamps: true }
 );

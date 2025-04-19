@@ -7,19 +7,22 @@ const jwt = require ('jsonwebtoken');
 const maxTime = 24 *60 * 60 //24H
 //const maxTime = 1 *60 // 1min
 
-const createToken = (id) => {
-    return jwt.sign({id},'net secret pfe', {expiresIn: maxTime})
+const createToken = (id,role) => {
+    return jwt.sign({id,role},'net secret pfe', {expiresIn: maxTime})
 }
-//add user
+// crud user 
 module.exports.addUserEmployeur = async (req,res) => {
     try {
-        const {username , email , password , age} = req.body;
+        const {username , email , password , age,department} = req.body;
         const roleEmployeur ='employeur'
-        if (!checkIfUserExists) {
-                throw new Error("User not found");
-               }
+        
         const user = await userModel.create({
-            username,email,password,role:roleEmployeur,age
+            username,
+            email,
+            password,
+            role:roleEmployeur,
+            age,
+            department
         })
         res.status(200).json({user});
     } catch (error) {
@@ -28,22 +31,9 @@ module.exports.addUserEmployeur = async (req,res) => {
 };
 
 
-module.exports.addUserEmployeurWithImg = async (req,res) => {
-    try {
-        const {username , email , password } = req.body;
-        const roleEmployeur = 'employeur'
-        const {filename} = req.file
 
-        const user = await userModel.create({
-            username,email ,password,role : roleEmployeur , image_user : filename
-        })
-        res.status(200).json({user});
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
-};
 
-// ajout d'admin
+// crud d'admin
 module.exports.addUserAdmin= async (req,res) => {
     try {
         const {username , email , password}  = req.body;
@@ -58,7 +48,7 @@ module.exports.addUserAdmin= async (req,res) => {
 };
 
 
-// donner tous les users 
+
 module.exports.getAllUsers= async (req,res) => {
     try {
         const userListe = await userModel.find() 
@@ -69,7 +59,7 @@ module.exports.getAllUsers= async (req,res) => {
 };
 
 
-//recherche by id 
+
 module.exports.getUserById= async (req,res) => {
     try {
         //const id = req.params.id
@@ -119,23 +109,6 @@ module.exports.deleteUserById= async (req,res) => {
 };
 
 
-
-// modifier 
-module.exports.updateUserById = async (req, res) => {
-    try {
-        const {id} = req.params
-        const {email , username} = req.body;
-    
-        await userModel.findByIdAndUpdate(id,{$set : {email , username }})
-        const updated = await userModel.findById(id)
-    
-        res.status(200).json({updated})
-    } catch (error) {
-        res.status(500).json({message: error.message});
-    }
-    };
-
-
     module.exports.searchUserByUsername = async (req, res) => {
         try {
     
@@ -173,17 +146,7 @@ module.exports.updateUserById = async (req, res) => {
         };
 
 
-        module.exports.getAllUsersAgeBetMaxAgeMinAge= async (req,res) => {
-            try {
-                const MaxAge = req.query.MaxAge
-                const MinAge = req.query.MinAge
-                const userListe = await userModel.find({age:{$gt: MinAge,$lt:MaxAge}}).sort({age:1})
-              
-                res.status(200).json({userListe});
-            } catch (error) {
-                res.status(500).json({message: error.message});
-            }
-        };
+       
 
 
         module.exports.getAllEmployeur= async (req,res) => {
@@ -197,29 +160,87 @@ module.exports.updateUserById = async (req, res) => {
         };
 
 
-        module.exports.getAllAdmin= async (req,res) => {
+        
+        //crud stagaire : 
+
+        module.exports.addUserStagaire = async (req, res) => {
             try {
-                const userListe = await userModel.find({role : "admin"})
-                res.status(200).json({userListe});
+                const { username, email, password, age } = req.body;
+                const roleStagaire = 'stagaire';
+        
+                const user = await userModel.create({
+                    username,
+                    email,
+                    password,
+                    role: roleStagaire,
+                    age,
+                    department
+                });
+        
+                res.status(200).json({ user });
             } catch (error) {
-                res.status(500).json({message: error.message});
+                res.status(500).json({ message: error.message });
+            }
+        };
+
+        
+        
+        module.exports.getAllStagaires = async (req, res) => {
+            try {
+                const stagaires = await userModel.find({ role: "stagaire" });
+                res.status(200).json({ stagaires });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        };
+
+        module.exports.getNotificationsForUser = async (req, res) => {
+            try {
+              const userId = req.params.userId;
+          
+              // Vérifier si l'utilisateur existe et qu'il est employé
+              const user = await userModel.findById(userId);
+              if (!user) {
+                return res.status(404).json({ message: "Utilisateur introuvable" });
+              }
+          
+              if (user.role !== 'employe') {
+                return res.status(403).json({ message: "Accès refusé. Notifications réservées aux employés." });
+              }
+          
+              // Récupérer les notifications (via alertes) de l'utilisateur
+              const alertes = await alerteModel.find({ user: userId }).populate('notif');
+          
+              res.status(200).json(alertes);
+            } catch (error) {
+              res.status(500).json({ message: error.message });
+            }
+          };
+          
+        
+        
+        module.exports.signin = async (req, res) => {
+            try {
+                const { email, password } = req.body;
+                const user = await userModel.login(email, password);
+                const token = createToken(user._id,user.role);
+        
+                res.cookie("jwt_token_9antra", token, {
+                    httpOnly: false,
+                    maxAge: maxTime * 1000
+                });
+        
+                res.status(200).json({ status: true,
+                     token ,
+                    role :user.role,
+                userId:user._id
+            });
+            } catch (error) {
+                res.status(500).json({ status: false, error: error.message });
             }
         };
         
-
-        module.exports.login= async (req,res) => {
-            try {
-                const { email , password } = req.body;
-                const user = await userModel.login(email, password)
-                const token = createToken(user._id)
-                res.cookie("jwt_token_9antra", token, {httpOnly:false,maxAge:maxTime * 1000})
-                res.status(200).json({user})
-            } catch (error) {
-                res.status(500).json({message: error.message});
-            }
-        };
-        // l token bch yetfasakh 
-        module.exports.logout= async (req,res) => {
+        module.exports.signup= async (req,res) => {
             try {
           
                 res.cookie("jwt_token_9antra", "", {httpOnly:false,maxAge:1})// 1 meli second

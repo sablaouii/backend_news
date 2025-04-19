@@ -2,30 +2,30 @@ var express = require('express');
 var router = express.Router();
 const userController = require('../controllers/userController');
 const {requireAuthUser} = require('../midlewares/authMiddleware');
+const {authorizeRole} = require('../midlewares/authorizeRole');
 
-const upload = require('../midlewares/uploadFile');
 
 
 /* GET users listing. */
 
-router.post('/addUserEmployeur',userController.addUserEmployeur);
+router.post('/addUserEmployeur',requireAuthUser, authorizeRole("admin"), userController.addUserEmployeur);
 router.post('/addUserAdmin',userController.addUserAdmin); 
-router.post('/login',userController.login);
-router.post('/logout',userController.logout);
-router.get('/getAllUsers',requireAuthUser,userController.getAllUsers);
-router.get('/getAllUsers',userController.getAllUsers);
-router.get('/getUserById/:id',userController.getUserById); 
-router.get('/searchUserByUsername',userController.searchUserByUsername); 
-router.get('/searchUserByUsername',userController.searchUserByUsername);
-router.get('/getAllUsersSortByAge',userController.getAllUsersSortByAge); 
-router.get('/getAllEmployeur',userController.getAllEmployeur); 
-router.get('/getAllAdmin',userController.getAllAdmin); 
-router.get('/getAllUsersAgeBetMaxAgeMinAge',userController.getAllUsersAgeBetMaxAgeMinAge); 
-//ajouter donc =post
-router.post('/addUserEmployeurWithImg/:id',upload.single("image_user"),userController.addUserEmployeurWithImg); 
-router.delete('/deleteUserById/:id',userController.deleteUserById); 
- 
+router.post('/signin',userController.signin);
+router.post('/signup',userController.signup);
 
 
-//router.get('/getAllEmployeur',userController.getAllEmployeur); //
+router.get('/getAllUsers',requireAuthUser, authorizeRole("admin"),userController.getAllUsers);
+
+router.get('/getUserById/:id',requireAuthUser, authorizeRole("admin"),userController.getUserById); 
+router.get('/searchUserByUsername',requireAuthUser, authorizeRole("admin"),userController.searchUserByUsername); 
+router.get('/getAllUsersSortByAge',requireAuthUser, authorizeRole("admin"),userController.getAllUsersSortByAge); 
+router.get('/getAllEmployeur',requireAuthUser, authorizeRole("admin"),userController.getAllEmployeur); 
+router.get('/getNotificationsForUser',requireAuthUser, authorizeRole("admin"),userController.getNotificationsForUser);
+
+router.post('/addUserStagaire', requireAuthUser, authorizeRole("admin"),userController.addUserStagaire);
+router.get('/getAllStagaires',requireAuthUser, authorizeRole("admin"),userController.getAllStagaires);
+
+router.get("/admin-dashboard", requireAuthUser, authorizeRole("admin"), (req, res) => {
+    res.send("Bienvenue dans le dashboard admin !");})
+router.delete('/deleteUserById/:id',requireAuthUser, authorizeRole("admin"),userController.deleteUserById); 
 module.exports = router;

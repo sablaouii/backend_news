@@ -2,25 +2,24 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/userSchema");
 
 const requireAuthUser = (req, res, next) => {
-   const token = req.cookies.jwt_token_9antra;
+  const token = req.cookies.jwt_token_9antra ||
+                (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
-  //const authHeader = req.headers.authorization;
-  //const token = authHeader && authHeader.split(" ")[1];
-  // console.log("token", token);
   if (token) {
     jwt.verify(token, 'net secret pfe', async (err, decodedToken) => {
       if (err) {
-        console.log("il ya une erreur au niveau du token", err.message);
-        req.session.user = null;  //session null
-        res.json("/Problem_token");
+        console.log("Invalid token", err.message);
+        req.session.user = null;
+        return res.status(401).json({ message: "Token invalid" });
       } else {
-        req.session.user = await userModel.findById(decodedToken.id); //session feha user
+        req.session.user = await userModel.findById(decodedToken.id);
         next();
       }
     });
   } else {
-   req.session.user = null; //session null
-    res.json("/pas_de_token");
+    req.session.user = null;
+    return res.status(401).json({ message: "No token provided" });
   }
 };
+
 module.exports = { requireAuthUser };

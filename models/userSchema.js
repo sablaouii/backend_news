@@ -25,18 +25,25 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "employeur","stagaire"],
+      enum: ["admin","employeur","stagaire","visiteur"],
+      default : 'visiteur'
     },
-    user_image: { type: String, require: false, default: "client.png" },
+    department: {
+      type: String,
+      enum: ['lExploration ', 'Développement', 'Production ','Commercialisation','Direction des Projets dÉnergies Renouvelables',
+          'Ressources Humaines','Financière','Juridique','Direction de la Communication','Sécurité'],
+      required: true, 
+    },
     age: {type : Number },
     count: {type : Number, default:'0'},
     formations : [{type : mongoose.Schema.Types.ObjectId,ref: 'Formation '}] ,//one to many men stagaire l formation
     articles : [{type : mongoose.Schema.Types.ObjectId,ref: 'Article'}] ,//one to many men admin l articles
    // formation : {type : mongoose.Schema.Types.ObjectId,ref: 'formation'} ,//one to one// kima formation o quiz
     alertes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Alerte' }], // Relation avec les alertes
-    certificats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificat' }]
-  // etat : Boolean,
-   //ban : Boolean,
+    certificats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Certificat' }],
+    notifs: [{type: mongoose.Schema.Types.ObjectId,ref: 'Alerte'}],
+    preference: {type: mongoose.Schema.Types.ObjectId,ref: 'Preference',  // référence à la collection Preference
+    }
   },
   { timestamps: true }
 );
@@ -54,12 +61,12 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-userSchema.post("save", async function (req, res, next) {
-  console.log("new user was created & saved successfully");
-  next();
+userSchema.post("save", function (doc) {
+  console.log(" New user was created & saved successfully:", doc.username);
 });
 
-userSchema.statics.login = async function (email, password) {
+
+userSchema.statics.signin = async function (email, password) {
   //console.log(email, password);
   const user = await this.findOne({ email });
   //console.log(user)
@@ -83,7 +90,5 @@ userSchema.statics.login = async function (email, password) {
     throw new Error("email not found");
   }
 };
-  
-
 const User = mongoose.model("User", userSchema);
 module.exports = User;
